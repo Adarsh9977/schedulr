@@ -124,7 +124,17 @@ export const authOptions = {
                         refresh_token: account.refresh_token,
                     }
                 });
-            } else {
+
+                // Update user with GitHub information
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: {
+                        githubId: account.providerAccountId,
+                        githubUsername: user.name // GitHub provider sets the username as name
+                    }
+                });
+            }
+            else {
                 // Create a proper JWT token with user details for non-GitHub login
                 const jwtToken = await new SignJWT({
                     id: user.id,

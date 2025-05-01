@@ -41,19 +41,77 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?   // For email/password authentication
-  accounts      Account[]
-  sessions      Session[]
-  schedules     Schedule[]
-  tasks         Task[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              String      @id @default(cuid())
+  name            String?
+  email           String      @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?     // For email/password authentication
+  role            Role        @default(student)
+  githubUsername  String?     @unique
+  githubId        String?
+  githubAdded     Boolean     @default(false)
+  accounts        Account[]
+  sessions        Session[]
+  schedules       Schedule[]
+  tasks           Task[]
+  projects        Project[]
+  studyGroups     StudyGroupMember[]
+  messages        StudyGroupMessage[]
+  createdStudyGroups StudyGroup[] @relation("CreatedStudyGroups")
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
+
+enum Role {
+  admin
+  student
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  title       String
+  description String?
+  githubUrl   String   @unique
+  stars       Int      @default(0)
+  forks       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model StudyGroup {
+  id          String   @id @default(cuid())
+  name        String
+  createdBy   String
+  creator     User     @relation("CreatedStudyGroups", fields: [createdBy], references: [id])
+  members     StudyGroupMember[]
+  messages    StudyGroupMessage[]
+  createdAt   DateTime @default(now())
+}
+
+model StudyGroupMember {
+  id          String   @id @default(cuid())
+  groupId     String
+  userId      String
+  group       StudyGroup @relation(fields: [groupId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
+  joinedAt    DateTime   @default(now())
+
+  @@unique([groupId, userId])
+}
+
+model StudyGroupMessage {
+  id        String   @id @default(cuid())
+  groupId   String
+  senderId  String
+  content   String
+  group     StudyGroup @relation(fields: [groupId], references: [id])
+  sender    User       @relation(fields: [senderId], references: [id])
+  sentAt    DateTime   @default(now())
+}
+
 
 model VerificationToken {
   identifier String

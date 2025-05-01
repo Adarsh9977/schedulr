@@ -6,13 +6,21 @@ import { Button } from "@/components/ui/button"
 import { Plus } from "lucide-react"
 import { ProgressStats } from "@/components/progress-stats"
 import Link from "next/link"
+import { authOptions } from "@/lib/auth"
+import { getServerSession } from "next-auth"
+import { redirect } from "next/navigation"
 
 export const metadata: Metadata = {
   title: "Dashboard - ScheduleAI",
   description: "Manage your daily schedule and tasks",
 }
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const session = await getServerSession(authOptions);
+  if (!session) {
+    redirect('/auth/signin')
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
