@@ -39,37 +39,37 @@ export const authOptions = {
         }
       }
     }),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials : any) {
-        const user = await prisma.user.findFirst({
-          where: {
-            email: credentials.email,
-          },
-        });
-        if (!user || !user.email || !user.password) {
-          return null;
-        }
-        const validPassword = await bcrypt.compare(
-          credentials.password,
-          user.password
-        );
+    // CredentialsProvider({
+    //   name: "Credentials",
+    //   credentials: {
+    //     email: { label: "Email", type: "email" },
+    //     password: { label: "Password", type: "password" },
+    //   },
+    //   async authorize(credentials : any) {
+    //     const user = await prisma.user.findFirst({
+    //       where: {
+    //         email: credentials.email,
+    //       },
+    //     });
+    //     if (!user || !user.email || !user.password) {
+    //       return null;
+    //     }
+    //     const validPassword = await bcrypt.compare(
+    //       credentials.password,
+    //       user.password
+    //     );
 
-        if (!validPassword) {
-          return null;
-        }
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        };
-      },
-    }),
+    //     if (!validPassword) {
+    //       return null;
+    //     }
+    //     return {
+    //       id: user.id,
+    //       name: user.name,
+    //       email: user.email,
+    //       image: user.image,
+    //     };
+    //   },
+    // }),
   ],
   session: {
     strategy: "jwt" as SessionStrategy,
@@ -124,17 +124,17 @@ export const authOptions = {
                         refresh_token: account.refresh_token,
                     }
                 });
-
+                console.log('GitHub account updated in database', account);
                 // Update user with GitHub information
-                await prisma.user.update({
+                const res = await prisma.user.update({
                     where: { id: user.id },
                     data: {
-                        githubId: account.providerAccountId,
-                        githubUsername: user.name // GitHub provider sets the username as name
+                      githubAdded: true,
+                      githubId: account.providerAccountId.toString(),
                     }
                 });
-            }
-            else {
+                console.log('User updated in database', res);
+            } else {
                 // Create a proper JWT token with user details for non-GitHub login
                 const jwtToken = await new SignJWT({
                     id: user.id,

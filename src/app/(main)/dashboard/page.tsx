@@ -9,6 +9,8 @@ import Link from "next/link"
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
 import { redirect } from "next/navigation"
+import { useIsGithubConnected } from "@/hooks/is-github-connected"
+import { isGithubConnected } from "@/actions/is-github-connected"
 
 export const metadata: Metadata = {
   title: "Dashboard - ScheduleAI",
@@ -17,8 +19,12 @@ export const metadata: Metadata = {
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
+  const res = await isGithubConnected()
   if (!session) {
     redirect('/auth/signin')
+  }
+  if(!res.isConnected) {
+    redirect('/connect-github')
   }
 
   return (

@@ -2,6 +2,7 @@ import { ConnectGithub } from "@/components/github/ConnectGithub"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function ConnectGithubPage() {
+    
     return (
         <div className="flex min-h-screen items-center justify-center p-4">
         <Card className="w-full max-w-md">
